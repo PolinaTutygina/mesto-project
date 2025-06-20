@@ -139,13 +139,25 @@ function renderCard(cardData) {
   placesList.prepend(card);
 }
 
+// Функция закрытия по Esc
+function handleEscapeKey(evt) {
+  if (evt.key === 'Escape') {
+    const openedPopup = document.querySelector('.popup_is-opened');
+    if (openedPopup) {
+      closeModal(openedPopup);
+    }
+  }
+}
+
 // Функции попапов
 function openModal(popup) {
   popup.classList.add('popup_is-opened');
+  document.addEventListener('keydown', handleEscapeKey);
 }
 
 function closeModal(popup) {
   popup.classList.remove('popup_is-opened');
+  document.removeEventListener('keydown', handleEscapeKey);
 }
 
 function openImagePopup(imageSrc, imageAlt) {
