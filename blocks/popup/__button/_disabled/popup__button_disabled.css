@@ -6,3 +6,8 @@
   border: 1px solid #000000;
   border-radius: 2px;
 }
+
+.popup__button_disabled:hover {
+  background: #E5E5E5;
+  opacity: 0.2;
+}
