@@ -12,6 +12,8 @@ const profileNameInput = profilePopup.querySelector('.popup__input.popup__input_
 const profileDescriptionInput = profilePopup.querySelector('.popup__input.popup__input_type_description');
 const editProfileButton = document.querySelector('.profile__edit-button');
 const closeProfilePopupButton = profilePopup.querySelector('.popup__close');
+const profileFormElement = profilePopup.querySelector('.popup__form');
+const profileSubmitButton = profileFormElement.querySelector('.popup__button');
 
 const cardPopup = document.querySelector('.popup_type_new-card');
 const addCardButton = document.querySelector('.profile__add-button');
@@ -21,6 +23,78 @@ const imagePopup = document.querySelector('.popup_type_image');
 const popupImage = imagePopup.querySelector('.popup__image');
 const popupCaption = imagePopup.querySelector('.popup__caption');
 const closeImagePopupButton = imagePopup.querySelector('.popup__close');
+
+// Установка атрибутов валидации
+profileNameInput.setAttribute('minlength', '2');
+profileNameInput.setAttribute('maxlength', '40');
+profileDescriptionInput.setAttribute('minlength', '2');
+profileDescriptionInput.setAttribute('maxlength', '200');
+
+// Функции валидации
+const showInputError = (inputElement, errorMessage) => {
+  const errorElement = inputElement.nextElementSibling;
+  inputElement.classList.add('popup__input_type_error');
+  errorElement.textContent = errorMessage;
+  errorElement.classList.add('popup__error_visible');
+};
+
+const hideInputError = (inputElement) => {
+  const errorElement = inputElement.nextElementSibling;
+  inputElement.classList.remove('popup__input_type_error');
+  errorElement.classList.remove('popup__error_visible');
+  errorElement.textContent = '';
+};
+
+const checkInputValidity = (inputElement) => {
+  if (!inputElement.validity.valid) {
+    let errorMessage = '';
+    
+    if (inputElement.validity.valueMissing) {
+      errorMessage = 'Вы пропустили это поле.';
+    } else if (inputElement.validity.tooShort) {
+      errorMessage = `Минимальное количество символов: ${inputElement.minLength}. Длина текста сейчас: ${inputElement.value.length} символ${inputElement.value.length === 1 ? '' : 'а'}.`;
+    } else if (inputElement.validity.tooLong) {
+      errorMessage = `Максимальное количество символов: ${inputElement.maxLength}.`;
+    }
+    
+    showInputError(inputElement, errorMessage);
+  } else {
+    hideInputError(inputElement);
+  }
+};
+
+const hasInvalidInput = (inputList) => {
+  return inputList.some((inputElement) => {
+    return !inputElement.validity.valid;
+  });
+};
+
+const toggleButtonState = (inputList, buttonElement) => {
+  if (hasInvalidInput(inputList)) {
+    buttonElement.disabled = true;
+    buttonElement.classList.add('popup__button_disabled');
+  } else {
+    buttonElement.disabled = false;
+    buttonElement.classList.remove('popup__button_disabled');
+  }
+};
+
+const setEventListeners = (formElement) => {
+  const inputList = Array.from(formElement.querySelectorAll('.popup__input'));
+  const buttonElement = formElement.querySelector('.popup__button');
+
+  toggleButtonState(inputList, buttonElement);
+
+  inputList.forEach((inputElement) => {
+    inputElement.addEventListener('input', function () {
+      checkInputValidity(inputElement);
+      toggleButtonState(inputList, buttonElement);
+    });
+  });
+};
+
+// Инициализация валидации формы профиля
+setEventListeners(profileFormElement);
 
 // @todo: Функция создания карточки
 function createCard(data) {
@@ -75,19 +149,24 @@ function fillProfileForm() {
 
   profileNameInput.value = currentName;
   profileDescriptionInput.value = currentDescription;
+
+  // Сброс ошибок при открытии формы
+  hideInputError(profileNameInput);
+  hideInputError(profileDescriptionInput);
+  
+  // Проверка состояния кнопки
+  const inputList = Array.from(profileFormElement.querySelectorAll('.popup__input'));
+  toggleButtonState(inputList, profileSubmitButton);
 }
 
 editProfileButton.addEventListener('click', () => {
   fillProfileForm();
-
   openModal(profilePopup);
 });
 
 closeProfilePopupButton.addEventListener('click', () => {
   closeModal(profilePopup);
 });
-
-const profileFormElement = profilePopup.querySelector('.popup__form');
 
 function handleProfileFormSubmit(evt) {
   evt.preventDefault();
@@ -109,7 +188,6 @@ function clearForm(form) {
 
 addCardButton.addEventListener('click', () => {
   clearForm(cardFormElement);
-
   openModal(cardPopup);
 });
 
@@ -118,7 +196,6 @@ closeCardPopupButton.addEventListener('click', () => {
 });
 
 const cardFormElement = cardPopup.querySelector('.popup__form');
-
 const placeNameInput = cardPopup.querySelector('.popup__input.popup__input_type_card-name');
 const placeLinkInput = cardPopup.querySelector('.popup__input.popup__input_type_url'); 
 
@@ -134,7 +211,6 @@ function handleCardFormSubmit(evt) {
   };
 
   const newCard = createCard(newCardData);
-
   placesList.prepend(newCard);
 
   closeModal(cardPopup);
