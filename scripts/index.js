@@ -205,6 +205,17 @@ closeProfilePopupButton.addEventListener('click', () => closeModal(profilePopup)
 closeCardPopupButton.addEventListener('click', () => closeModal(cardPopup));
 closeImagePopupButton.addEventListener('click', () => closeModal(imagePopup));
 
+// Закрытие попапов кликом на оверлей
+function handleOverlayClick(event) {
+  if (event.target === event.currentTarget) {
+    closeModal(event.currentTarget);
+  }
+}
+
+profilePopup.addEventListener('click', handleOverlayClick);
+cardPopup.addEventListener('click', handleOverlayClick);
+imagePopup.addEventListener('click', handleOverlayClick);
+
 // Анимация попапов
 document.querySelectorAll('.popup').forEach(popup => {
   popup.classList.add('popup_is-animated');
