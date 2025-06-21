@@ -1,21 +1,20 @@
-export function showInputError(inputElement, errorMessage) {
-  const errorElement = inputElement.nextElementSibling;
-  inputElement.classList.add('popup__input_type_error');
+function showInputError(formElement, inputElement, errorMessage, settings) {
+  const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
+  inputElement.classList.add(settings.inputErrorClass);
   errorElement.textContent = errorMessage;
-  errorElement.classList.add('popup__error_visible');
+  errorElement.classList.add(settings.errorClass);
 }
 
-export function hideInputError(inputElement) {
-  const errorElement = inputElement.nextElementSibling;
-  inputElement.classList.remove('popup__input_type_error');
-  errorElement.classList.remove('popup__error_visible');
+function hideInputError(formElement, inputElement, settings) {
+  const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
+  inputElement.classList.remove(settings.inputErrorClass);
+  errorElement.classList.remove(settings.errorClass);
   errorElement.textContent = '';
 }
 
-export function checkInputValidity(inputElement) {
+function checkInputValidity(formElement, inputElement, settings) {
   if (!inputElement.validity.valid) {
     let errorMessage = '';
-
     if (inputElement.validity.valueMissing) {
       errorMessage = 'Вы пропустили это поле.';
     } else if (inputElement.validity.tooShort) {
@@ -25,23 +24,50 @@ export function checkInputValidity(inputElement) {
     } else if (inputElement.validity.typeMismatch && inputElement.type === 'url') {
       errorMessage = 'Введите адрес сайта.';
     }
-
-    showInputError(inputElement, errorMessage);
+    showInputError(formElement, inputElement, errorMessage, settings);
   } else {
-    hideInputError(inputElement);
+    hideInputError(formElement, inputElement, settings);
   }
 }
 
-export function hasInvalidInput(inputList) {
+function hasInvalidInput(inputList) {
   return inputList.some(inputElement => !inputElement.validity.valid);
 }
 
-export function toggleButtonState(inputList, buttonElement) {
+function toggleButtonState(inputList, buttonElement, settings) {
   if (hasInvalidInput(inputList)) {
-    buttonElement.classList.add('popup__button_disabled');
+    buttonElement.classList.add(settings.inactiveButtonClass);
     buttonElement.disabled = true;
   } else {
-    buttonElement.classList.remove('popup__button_disabled');
+    buttonElement.classList.remove(settings.inactiveButtonClass);
     buttonElement.disabled = false;
   }
 }
+
+function setEventListeners(formElement, settings) {
+  const inputList = Array.from(formElement.querySelectorAll(settings.inputSelector));
+  const buttonElement = formElement.querySelector(settings.submitButtonSelector);
+
+  toggleButtonState(inputList, buttonElement, settings);
+
+  inputList.forEach((inputElement) => {
+    inputElement.addEventListener('input', function () {
+      checkInputValidity(formElement, inputElement, settings);
+      toggleButtonState(inputList, buttonElement, settings);
+    });
+  });
+}
+
+export function enableValidation(settings) {
+  const formList = Array.from(document.querySelectorAll(settings.formSelector));
+  formList.forEach((formElement) => {
+    setEventListeners(formElement, settings);
+  });
+}
+
+export {
+  showInputError,
+  hideInputError,
+  checkInputValidity,
+  toggleButtonState
+};
