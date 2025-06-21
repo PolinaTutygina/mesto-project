@@ -1,5 +1,5 @@
 import '../../pages/index.css';
-import { getUserInfo, getInitialCards, updateUserInfo, addNewCard } from './api';
+import { getUserInfo, getInitialCards, updateUserInfo, addNewCard, updateAvatar } from './api';
 import { createCard, renderCard } from './card.js';
 import { openModal, closeModal, handleOverlayClick } from './modal.js';
 import { enableValidation } from './validate.js';
@@ -24,7 +24,14 @@ const cardFormElement = document.forms['new-place'];
 const placeNameInput = cardFormElement.querySelector('.popup__input_type_card-name');
 const placeLinkInput = cardFormElement.querySelector('.popup__input_type_url');
 
-const closeImagePopupButton = document.querySelector('.popup_type_image .popup__close');
+const avatarPopup = document.querySelector('.popup_type_avatar');
+const avatarForm = avatarPopup.querySelector('.popup__form');
+const avatarInput = avatarForm.querySelector('.popup__input_type_avatar-url');
+const avatarButton = avatarForm.querySelector('.popup__button');
+const avatarCloseButton = avatarPopup.querySelector('.popup__close');
+
+const imagePopup = document.querySelector('.popup_type_image');
+const closeImagePopupButton = imagePopup.querySelector('.popup__close');
 
 const validationSettings = {
   formSelector: '.popup__form',
@@ -37,20 +44,16 @@ const validationSettings = {
 
 enableValidation(validationSettings);
 
-// Глобальная переменная для хранения текущего ID пользователя
 let currentUserId = null;
 
-// Загружаем данные пользователя и карточки с сервера
 Promise.all([getUserInfo(), getInitialCards()])
   .then(([userData, cards]) => {
     currentUserId = userData._id;
 
-    // Обновляем DOM: имя, описание, аватар
     profileTitle.textContent = userData.name;
     profileDescription.textContent = userData.about;
     profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
 
-    // Отрисовываем карточки в правильном порядке
     cards.forEach(cardData => {
       renderCard(cardData, placesList, currentUserId);
     });
@@ -58,6 +61,19 @@ Promise.all([getUserInfo(), getInitialCards()])
   .catch((err) => {
     console.error('Ошибка при загрузке данных с сервера:', err);
   });
+
+const closeAllPopups = () => {
+  const closeButtons = document.querySelectorAll('.popup__close');
+  
+  closeButtons.forEach((closeButton) => {
+    closeButton.addEventListener('click', () => {
+      const popup = closeButton.closest('.popup');
+      closeModal(popup);
+    });
+  });
+};
+
+closeAllPopups();
 
 editProfileButton.addEventListener('click', () => {
   profileNameInput.value = profileTitle.textContent;
@@ -68,6 +84,10 @@ editProfileButton.addEventListener('click', () => {
 addCardButton.addEventListener('click', () => {
   cardFormElement.reset();
   openModal(cardPopup);
+});
+
+profileAvatar.addEventListener('click', () => {
+  openModal(avatarPopup);
 });
 
 profileFormElement.addEventListener('submit', (evt) => {
@@ -104,14 +124,31 @@ cardFormElement.addEventListener('submit', (evt) => {
     });
 });
 
-closeProfilePopupButton.addEventListener('click', () => closeModal(profilePopup));
-closeCardPopupButton.addEventListener('click', () => closeModal(cardPopup));
-closeImagePopupButton.addEventListener('click', () => {
-  closeModal(document.querySelector('.popup_type_image'));
+avatarForm.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+
+  const originalText = avatarButton.textContent;
+  avatarButton.textContent = 'Сохранение...';
+
+  updateAvatar(avatarInput.value)
+    .then((res) => {
+      profileAvatar.style.backgroundImage = `url(${res.avatar})`;
+      closeModal(avatarPopup);
+      avatarForm.reset();
+    })
+    .catch((err) => console.log(err))
+    .finally(() => {
+      avatarButton.textContent = originalText;
+    });
 });
 
-[profilePopup, cardPopup, document.querySelector('.popup_type_image')]
-  .forEach(popup => popup.addEventListener('click', handleOverlayClick));
+closeImagePopupButton.addEventListener('click', () => {
+  closeModal(imagePopup);
+});
+
+[profilePopup, cardPopup, avatarPopup, imagePopup].forEach(popup => {
+  popup.addEventListener('click', handleOverlayClick);
+});
 
 document.querySelectorAll('.popup').forEach(popup => {
   popup.classList.add('popup_is-animated');

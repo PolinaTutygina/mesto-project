@@ -65,3 +65,11 @@ export const deleteCard = (cardId) => {
     headers: config.headers
   }).then(checkResponse);
 };
+
+export const updateAvatar = (avatarUrl) => {
+  return fetch(`${config.baseUrl}/users/me/avatar`, {
+    method: 'PATCH',
+    headers: config.headers,
+    body: JSON.stringify({ avatar: avatarUrl })
+  }).then(checkResponse);
+};
