@@ -67,9 +67,5 @@ export function createCard(data, currentUserId) {
 
 export const renderCard = (cardData, container, currentUserId) => {
   const cardElement = createCard(cardData, currentUserId);
-  container.append(cardElement);
+  container.prepend(cardElement);
 };
-
-
-//   container.append(cardElement);
-

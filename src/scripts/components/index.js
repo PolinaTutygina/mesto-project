@@ -54,7 +54,7 @@ Promise.all([getUserInfo(), getInitialCards()])
     profileDescription.textContent = userData.about;
     profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
 
-    cards.forEach(cardData => {
+    cards.reverse().forEach(cardData => {
       renderCard(cardData, placesList, currentUserId);
     });
   })
@@ -90,11 +90,15 @@ profileAvatar.addEventListener('click', () => {
   openModal(avatarPopup);
 });
 
+// Обработчик отправки формы редактирования профиля
 profileFormElement.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
   const newName = profileNameInput.value;
   const newAbout = profileDescriptionInput.value;
+
+  const originalText = editProfileButton.textContent;
+  editProfileButton.textContent = 'Сохранение...';
 
   updateUserInfo(newName, newAbout)
     .then((userData) => {
@@ -104,14 +108,21 @@ profileFormElement.addEventListener('submit', (evt) => {
     })
     .catch((err) => {
       console.error('Ошибка при обновлении профиля:', err);
+    })
+    .finally(() => {
+      editProfileButton.textContent = originalText;
     });
 });
 
+// Обработчик отправки формы для добавления нового места
 cardFormElement.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
   const name = placeNameInput.value;
   const link = placeLinkInput.value;
+
+  const originalText = addCardButton.textContent;
+  addCardButton.textContent = 'Сохранение...';
 
   addNewCard(name, link)
     .then((newCard) => {
@@ -121,9 +132,13 @@ cardFormElement.addEventListener('submit', (evt) => {
     })
     .catch((err) => {
       console.error('Ошибка при добавлении карточки:', err);
+    })
+    .finally(() => {
+      addCardButton.textContent = originalText;
     });
 });
 
+// Обработчик отправки формы для обновления аватара
 avatarForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
