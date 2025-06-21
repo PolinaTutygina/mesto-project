@@ -90,7 +90,6 @@ profileAvatar.addEventListener('click', () => {
   openModal(avatarPopup);
 });
 
-// Обработчик отправки формы редактирования профиля
 profileFormElement.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
@@ -114,7 +113,6 @@ profileFormElement.addEventListener('submit', (evt) => {
     });
 });
 
-// Обработчик отправки формы для добавления нового места
 cardFormElement.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
@@ -138,7 +136,6 @@ cardFormElement.addEventListener('submit', (evt) => {
     });
 });
 
-// Обработчик отправки формы для обновления аватара
 avatarForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
 

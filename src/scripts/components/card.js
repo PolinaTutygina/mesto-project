@@ -26,7 +26,6 @@ export function createCard(data, currentUserId) {
   cardTitle.textContent = data.name;
   likeCount.textContent = data.likes.length;
 
-  // Отображение иконки корзины только для своих карточек
   if (data.owner._id !== currentUserId) {
     deleteButton.remove();
   } else {
@@ -41,7 +40,6 @@ export function createCard(data, currentUserId) {
     });
   }
 
-  // Отображение активного лайка, если пользователь уже лайкнул
   if (data.likes.some(user => user._id === currentUserId)) {
     likeButton.classList.add('card__like-button_is-active');
   }
